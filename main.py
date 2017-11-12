@@ -1,4 +1,4 @@
-from config import FileConfig
+from config import JsonFileConfig
 from evaluator import Evaluator
 from dumper import Dumper
 from fetcher import MeetupFetcher
@@ -13,8 +13,8 @@ if __name__ == "__main__":
     # TODO parse input parameters
 
     fetch = MeetupFetcher("AgileWarsaw")
-    configuration = FileConfig("./config.ini")
+    configuration = JsonFileConfig("./config.json")
 
-    reputation = Evaluator(configuration, fetch, 1).evaluate_members(Reputation)
+    reputation = Evaluator(configuration, fetch, 1).evaluate_by_events(Reputation)
 
     Dumper("result.csv", reputation).dump_to_csv()

@@ -13,6 +13,12 @@ class MeetupFetcher(object):
         """ Fetch all meetup members """
         return []
 
-    def attendance(self, event, member):
-        """ Returns attendance status for the member in the given event """
-        return {}
+    def attendance_list(self, event):
+        return {
+            "John Smith": {
+                "status": "noshow",
+            },
+            "Napad Nabank": {
+                "status": "attend",
+            }
+        }
