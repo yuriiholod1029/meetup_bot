@@ -7,5 +7,6 @@ class Reputation(object):
         self._reputations[member] += points
 
     def dump_to_csv(self, sort=True):
-        reputations_items = sorted(self._reputations.items(), key=lambda _, x: x) if sort else self._reputations.items()
+        reputations_items = sorted(self._reputations.items(), key=lambda x: x[1], reverse=True)\
+            if sort else self._reputations.items()
         return "\n".join("{0},{1}".format(mem, mark) for mem, mark in reputations_items)
