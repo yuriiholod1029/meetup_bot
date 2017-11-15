@@ -33,7 +33,7 @@ class MeetupFetcher(object):
             with open(token_file) as app_file:
                 self._headers['App-Token'] = app_file.readline().strip()
         except FileNotFoundError:
-            raise Exception("Please create file with app token")
+            raise Exception("Please create file '.token' with app token")
 
     def _check_response(self, response):
         if response.status_code != 200:
