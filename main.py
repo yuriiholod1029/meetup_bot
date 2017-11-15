@@ -14,6 +14,7 @@ if __name__ == "__main__":
 
     fetch = MeetupFetcher("AgileWarsaw")
     configuration = JsonFileConfig("./config.json")
+    configuration.load()
 
     reputation = Evaluator(configuration, fetch, 1).evaluate_by_events(Reputation)
 
