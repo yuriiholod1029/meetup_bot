@@ -18,37 +18,36 @@ class EvaluatorTests(TestCase):
         self.fetcher = Mock(spec=MeetupFetcher)
 
     def test_one_event(self):
+        ALICE, BOB, CINDY = range(3)
+
         self.configuration._config = {
             "attended": 1,
             "absent": 0,
             "noshow": -3,
         }
         self.num_of_events = 3
-        self.members = ["Alice", "Bob", "Cindy"]
+        self.members = zip(range(3), ["Alice", "Bob", "Cindy"])
 
         self.fetcher.last_events_ids = Mock(return_value=range(self.num_of_events))
         self.fetcher.members = Mock(return_value=self.members)
 
         def side_effect(event_num):
-            ALICE = "Alice"
-            BOB = "Bob"
-            CINDY = "Cindy"
             selector = {
-                0: {
-                    ALICE: {"status": ATTENDED},
-                    BOB: {"status": ABSENT},
-                    CINDY: {"status": NOSHOW},
-                },
-                1: {
-                    ALICE: {"status": ATTENDED},
-                    BOB: {"status": NOSHOW},
-                    CINDY: {"status": NOSHOW},
-                },
-                2: {
-                    ALICE: {"status": ATTENDED},
-                    BOB: {"status": ATTENDED},
-                    CINDY: {"status": ABSENT},
-                },
+                0: [
+                    {"member": {"id": ALICE}, "status": ATTENDED},
+                    {"member": {"id": BOB}, "status": ABSENT},
+                    {"member": {"id": CINDY}, "status": NOSHOW},
+                ],
+                1: [
+                    {"member": {"id": ALICE}, "status": ATTENDED},
+                    {"member": {"id": BOB}, "status": NOSHOW},
+                    {"member": {"id": CINDY}, "status": NOSHOW},
+                ],
+                2: [
+                    {"member": {"id": ALICE}, "status": ATTENDED},
+                    {"member": {"id": BOB}, "status": ATTENDED},
+                    {"member": {"id": CINDY}, "status": ABSENT},
+                ],
             }
             return selector[event_num]
         self.fetcher.attendance_list = Mock(side_effect=side_effect)
@@ -57,9 +56,9 @@ class EvaluatorTests(TestCase):
         reputation = evaluator.evaluate_by_events(Reputation)
 
         self.assertEqual(len(reputation._reputations.items()), 3)
-        self.assertEqual(reputation._reputations["Alice"], 3)
-        self.assertEqual(reputation._reputations["Bob"], -2)
-        self.assertEqual(reputation._reputations["Cindy"], -6)
+        self.assertEqual(reputation._reputations[ALICE]["points"], 3)
+        self.assertEqual(reputation._reputations[BOB]["points"], -2)
+        self.assertEqual(reputation._reputations[CINDY]["points"], -6)
 
     def tearDown(self):
         self.fetcher.reset_mock()

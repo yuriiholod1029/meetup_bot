@@ -7,11 +7,11 @@ class ReputationTests(unittest.TestCase):
     def test_dump_to_csv_string(self):
         reputation = Reputation({})
         reputation._reputations = {
-            "John": 1,
-            "Sarah": 2,
-            "Pavel": 3,
-            "Anthony": -2,
-            "Steve": -1
+            1: {"name": "John", "points": 1},
+            2: {"name": "Sarah", "points": 2},
+            3: {"name": "Pavel", "points": 3},
+            4: {"name": "Anthony", "points": -2},
+            5: {"name": "Steve", "points": -1},
         }
 
         dump = reputation.dump_to_csv(sort=True)

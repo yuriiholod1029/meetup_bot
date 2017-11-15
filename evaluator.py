@@ -11,9 +11,9 @@ class Evaluator(object):
 
         for event in events_ids:
             attendances = self._fetch.attendance_list(event)
-            for member, attendance in attendances.items():
+            for attendance in attendances:
                 reputation_affect = self._evaluate_attendance(attendance["status"])
-                reputation.update_member_evaluation(member, reputation_affect)
+                reputation.update_member_evaluation(attendance["member"]["id"], reputation_affect)
 
         return reputation
 
