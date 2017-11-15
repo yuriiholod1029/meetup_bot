@@ -1,21 +1,24 @@
+import argparse
+import sys
+
 from config import JsonFileConfig
 from evaluator import Evaluator
 from dumper import Dumper
 from fetcher import MeetupFetcher
 from reputation import Reputation
 
-"""
-Calling with:
-    python3.6 evaluator.py [meetup_name=AgileWarsaw] [config_file=config.ini] [num_last_events=1]
-"""
 
 if __name__ == "__main__":
-    # TODO parse input parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--meetup", help="meetup name", default="AgileWarsaw")
+    parser.add_argument("--config", help="config file name", default="config.json")
+    parser.add_argument("--last", help="number of last events to check", default="1", type=int)
+    args = parser.parse_args(sys.argv[1:])
 
-    fetch = MeetupFetcher("AgileWarsaw")
-    configuration = JsonFileConfig("./config.json")
+    fetch = MeetupFetcher(args.meetup)
+    configuration = JsonFileConfig(args.config)
     configuration.load()
 
-    reputation = Evaluator(configuration, fetch, 1).evaluate_by_events(Reputation)
+    reputation = Evaluator(configuration, fetch, args.last).evaluate_by_events(Reputation)
 
     Dumper("result.csv", reputation).dump_to_csv()
