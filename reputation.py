@@ -1,10 +1,15 @@
+import logging
+
 
 class Reputation(object):
     def __init__(self, members):
         self._reputations = {mem_id: {"name": name, "points": 0} for mem_id, name in members}
 
     def update_member_evaluation(self, member_id, points):
-        self._reputations[member_id]["points"] += points
+        try:
+            self._reputations[member_id]["points"] += points
+        except KeyError:
+            logging.warning('missing member: %s', member_id)
 
     def dump_to_csv(self, sort=True):
         reputations_items = sorted(
