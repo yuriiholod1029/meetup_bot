@@ -12,6 +12,8 @@ class Evaluator(object):
         for event in events_ids:
             attendances = self._fetch.attendance_list(event)
             for attendance in attendances:
+                if attendance["member"]["id"] == 0:
+                    continue  # case when member is a former member
                 reputation_affect = self._evaluate_attendance(attendance["status"])
                 reputation.update_member_evaluation(attendance["member"]["id"], reputation_affect)
 
