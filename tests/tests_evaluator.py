@@ -18,15 +18,15 @@ class EvaluatorTests(TestCase):
         self.fetcher = Mock(spec=MeetupFetcher)
 
     def test_one_event(self):
-        ALICE, BOB, CINDY = range(3)
+        ALICE, BOB, CINDY = self._ids_range(3)
 
         self.configuration._config = {
-            "attended": 1,
-            "absent": 0,
-            "noshow": -3,
+            ATTENDED: 1,
+            ABSENT: 0,
+            NOSHOW: -3,
         }
         self.num_of_events = 3
-        self.members = zip(range(3), ["Alice", "Bob", "Cindy"])
+        self.members = zip(self._ids_range(3), ["Alice", "Bob", "Cindy"])
 
         self.fetcher.last_events_ids = Mock(return_value=range(self.num_of_events))
         self.fetcher.members = Mock(return_value=self.members)
@@ -59,6 +59,9 @@ class EvaluatorTests(TestCase):
         self.assertEqual(reputation._reputations[ALICE]["points"], 3)
         self.assertEqual(reputation._reputations[BOB]["points"], -2)
         self.assertEqual(reputation._reputations[CINDY]["points"], -6)
+
+    def _ids_range(self, how_many):
+        return range(100, 100 + how_many)
 
     def tearDown(self):
         self.fetcher.reset_mock()
