@@ -31,12 +31,7 @@ class MeetupFetcher(object):
 
     def attendance_list(self, event_id):
         params = {'key': self._get_token()}
-        return [
-            attendance
-            for response in self._all_responses(
-                self.ATTENDANCES_URL_FORMAT.format(self._meetup_name, event_id), params=params)
-            for attendance in response.json()
-        ]
+        return self._attendances_list_according_to_params(event_id, params)
 
     def upcoming_ids_in_time_deltas_range(self, max_before=timedelta(hours=72), min_before=timedelta(hours=48)):
         earliest_possible = datetime.now() + min_before
@@ -50,7 +45,7 @@ class MeetupFetcher(object):
         ]
 
     def _upcoming_events(self):
-        params = {"status": "past", 'key': self._get_token()}
+        params = {"status": "upcoming", 'key': self._get_token()}
         return self._events_according_to_params(params)
 
     def _events_according_to_params(self, params):
@@ -62,6 +57,14 @@ class MeetupFetcher(object):
             )
             for event in response.json()
         )
+
+    def _attendances_list_according_to_params(self, event_id, params):
+        return [
+            attendance
+            for response in self._all_responses(
+                self.ATTENDANCES_URL_FORMAT.format(self._meetup_name, event_id), params=params)
+            for attendance in response.json()
+        ]
 
     def _all_responses(self, initial_request, **kwargs):
         response = self._session.get(initial_request, **kwargs)
