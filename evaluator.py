@@ -14,13 +14,6 @@ class Evaluator(object):
 
         return reputation
 
-    def evaluate_single_event(self, reputation_class, event_id):
-        reputation = reputation_class(self._fetch.members())
-
-        self._evaluate_event(reputation, event_id)
-
-        return reputation
-
     def _evaluate_event(self, reputation_collector, event_id):
         attendances = self._fetch.attendance_list(event_id)
         for attendance in attendances:
