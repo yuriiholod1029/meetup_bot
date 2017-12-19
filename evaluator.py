@@ -26,8 +26,5 @@ class Evaluator(object):
         for attendance in attendances:
             if attendance["member"]["id"] == 0:
                 continue  # case when member is a former member
-            reputation_affect = self._evaluate_attendance(attendance["status"])
+            reputation_affect = self._config.evaluate(attendance)
             reputation_collector.update_member_evaluation(attendance["member"]["id"], reputation_affect)
-
-    def _evaluate_attendance(self, attendance_status):
-        return self._config.evaluate(attendance_status)

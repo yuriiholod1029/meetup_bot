@@ -9,7 +9,8 @@ from reputation import Reputation
 
 ATTENDED = "attended"
 ABSENT = "absent"
-NOSHOW = "noshow"
+YES = "yes"
+NO = "no"
 
 
 class EvaluatorTests(TestCase):
@@ -21,9 +22,9 @@ class EvaluatorTests(TestCase):
         ALICE, BOB, CINDY = self._ids_range(3)
 
         self.configuration._config = {
-            ATTENDED: 1,
-            ABSENT: 0,
-            NOSHOW: -3,
+            "yes, attended": 1,
+            "no, attended": -1,
+            "yes, absent": -3,
         }
         self.num_of_events = 3
         self.members = zip(self._ids_range(3), ["Alice", "Bob", "Cindy"])
@@ -34,19 +35,19 @@ class EvaluatorTests(TestCase):
         def side_effect(event_num):
             selector = {
                 0: [
-                    {"member": {"id": ALICE}, "status": ATTENDED},
-                    {"member": {"id": BOB}, "status": ABSENT},
-                    {"member": {"id": CINDY}, "status": NOSHOW},
+                    {"member": {"id": ALICE}, "rsvp": {"response": YES}, "status": ATTENDED},
+                    {"member": {"id": BOB}, "rsvp": {"response": NO}, "status": ABSENT},
+                    {"member": {"id": CINDY}, "status": ABSENT},
                 ],
                 1: [
-                    {"member": {"id": ALICE}, "status": ATTENDED},
-                    {"member": {"id": BOB}, "status": NOSHOW},
-                    {"member": {"id": CINDY}, "status": NOSHOW},
+                    {"member": {"id": ALICE}, "rsvp": {"response": YES}, "status": ATTENDED},
+                    {"member": {"id": BOB}, "rsvp": {"response": NO}, "status": ABSENT},
+                    {"member": {"id": CINDY}, "rsvp": {"response": NO}, "status": ATTENDED},
                 ],
                 2: [
-                    {"member": {"id": ALICE}, "status": ATTENDED},
-                    {"member": {"id": BOB}, "status": ATTENDED},
-                    {"member": {"id": CINDY}, "status": ABSENT},
+                    {"member": {"id": ALICE}, "rsvp": {"response": YES}, "status": ATTENDED},
+                    {"member": {"id": BOB}, "rsvp": {"response": YES}, "status": ATTENDED},
+                    {"member": {"id": CINDY}, "rsvp": {"response": YES}, "status": ABSENT},
                 ],
             }
             return selector[event_num]
@@ -57,8 +58,8 @@ class EvaluatorTests(TestCase):
 
         self.assertEqual(len(reputation._reputations.items()), 3)
         self.assertEqual(reputation._reputations[ALICE]["points"], 3)
-        self.assertEqual(reputation._reputations[BOB]["points"], -2)
-        self.assertEqual(reputation._reputations[CINDY]["points"], -6)
+        self.assertEqual(reputation._reputations[BOB]["points"], 1)
+        self.assertEqual(reputation._reputations[CINDY]["points"], -4)
 
     def _ids_range(self, how_many):
         return range(100, 100 + how_many)

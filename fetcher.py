@@ -30,7 +30,7 @@ class MeetupFetcher(object):
         return members
 
     def attendance_list(self, event_id):
-        params = {'key': self._get_token()}
+        params = {'filter': 'all', 'key': self._get_token()}
         return self._attendances_list_according_to_params(event_id, params)
 
     def upcoming_ids_in_time_deltas_range(self, max_before=timedelta(hours=72), min_before=timedelta(hours=48)):

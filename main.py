@@ -21,8 +21,7 @@ def read_args():
 
 
 def evaluate_reputations(args):
-    # TODO do it using temporal files with declarations
-    logging.warning("Running in general repuptatons counting mode")
+    logging.warning("Running in general reputations counting mode")
     reputation = Evaluator(configuration, fetch, args.last).evaluate_by_events(Reputation)
     result_file_name = "result.csv"
     ReputationDumper(result_file_name, reputation).dump_to_csv()
@@ -46,7 +45,7 @@ if __name__ == "__main__":
 
     if hasattr(args, 'eventid') and args.eventid:
         fetch_single_event(args.eventid, meetup_event_file_name(args.meetup, args.eventid))
-    elif hasattr(args, "d"):
+    elif hasattr(args, "d") and args.d:
         for event_id in fetch.upcoming_ids_in_time_deltas_range():
             logging.warning(event_id)
             result_file_name = meetup_event_file_name(args.meetup, event_id)
