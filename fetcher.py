@@ -12,7 +12,7 @@ class MeetupFetcher(object):
 
         self._session = Session()
         self._session.headers.update(self._headers)
-        self.token = token
+        self._token = token
 
     def last_events_ids(self, number_of_events=1):
         params = {"status": "past", 'key': self._token}
