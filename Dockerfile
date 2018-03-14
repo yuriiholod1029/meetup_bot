@@ -1,8 +1,14 @@
-FROM ubuntu:latest
-RUN apt-get update -y
-RUN apt-get install -y python-pip python-dev build-essential
-COPY . /app
+FROM python:3-alpine
+
+RUN mkdir -p /app
 WORKDIR /app
-RUN pip install -r requirements.txt
+
+COPY requirements.txt /app
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /app
+
+EXPOSE 5000
+
 ENTRYPOINT ["python"]
 CMD ["app.py"]
