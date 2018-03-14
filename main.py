@@ -23,4 +23,6 @@ if __name__ == "__main__":
     configuration.load()
 
     reputation = Evaluator(configuration, fetch, args.last).evaluate_by_events(Reputation)
-    ReputationDumper("result.csv", reputation).dump_to_csv()
+
+    with open('result.csv', 'w', encoding='utf-8') as f:  # TypeError -> you are using python2.x
+        ReputationDumper(reputation).dump_to_csv(output_stream)
