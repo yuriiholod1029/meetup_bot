@@ -1,6 +1,7 @@
 {
-  "yes, attended": 1,
-  "yes, absent": -3,
-  "yes, noshow": -2,
-  "no, attended": -2
+  "yes, attended": 0,
+  "yes, noshow9999": 0,
+  "yes, absent": 1,
+  "no, attended": 0,
+  "no, absent": 0
 }
