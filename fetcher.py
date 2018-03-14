@@ -50,24 +50,28 @@ class MeetupFetcher(object):
             for attendance in response.json()
         ]
 
+    def _get(self, request, **kwargs):
+        while 1:
+            response = self._session.get(request, **kwargs)
+            if response.status_code == 429:
+                time.sleep(
+                    max(  # to prevent accidental excessive CPU consumption if meetup rate limiter fails
+                        float(
+                            response.headers.get(
+                                'X-RateLimit-Reset',
+                                'missing header!'
+                            )
+                        ),
+                        1
+                    )
+                )
+                continue
+            response.raise_for_status()
+            return response
+
     def _all_responses(self, initial_request, **kwargs):
-        response = self._session.get(initial_request, **kwargs)
-        self._check_response(response)
+        response = self._get(initial_request, **kwargs)
         yield response
         while response.links.get('next'):
-            response = self._session.get(response.links['next']['url'], **kwargs)
-            self._check_response(response)
+            response = self._get(response.links['next']['url'], **kwargs)
             yield response
-
-    def _get_token(self):
-        try:
-            with open(self.token_file) as app_file:
-                return app_file.readline().strip()
-        except FileNotFoundError:
-            raise Exception("Please create file '.token' with app token")
-
-    def _check_response(self, response):
-        if response.status_code == 400:
-            raise Exception("400: {0}".format(response.content))
-        elif response.status_code != 200:
-            raise Exception("Status code {0} is different than 200, something went wrong.".format(response.status_code))
