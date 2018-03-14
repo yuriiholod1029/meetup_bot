@@ -9,11 +9,14 @@ class JsonFileConfig(object):
 
     def evaluate(self, attendance_response):
         rsvp = attendance_response.get("rsvp")
-        if not rsvp:
+        if rsvp is None:
             return 0  # case when user did not declared any attendance before event
 
         declaration = rsvp["response"]
-        attendance = attendance_response["status"]
+        attendance = attendance_response.get("status")
+        if attendance_response is None:
+            print(json.dumps(attendance_response, indent=4))
+            return 0
 
         config_key = "{0}, {1}".format(declaration, attendance)
         grade = self._config.get(config_key)

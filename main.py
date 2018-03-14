@@ -3,7 +3,6 @@ import sys
 
 from config import JsonFileConfig
 from evaluator import Evaluator
-from dumper import ReputationDumper
 from fetcher import MeetupFetcher
 from reputation import Reputation
 
@@ -24,5 +23,5 @@ if __name__ == "__main__":
 
     reputation = Evaluator(configuration, fetch, args.last).evaluate_by_events(Reputation)
 
-    with open('result.csv', 'w', encoding='utf-8') as f:  # TypeError -> you are using python2.x
-        ReputationDumper(reputation).dump_to_csv(output_stream)
+    with open('result.csv', 'w', encoding='utf-8') as output_stream:  # TypeError -> you are using python2.x
+        reputation.dump_to_csv(output_stream)

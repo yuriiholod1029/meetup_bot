@@ -17,6 +17,9 @@ class Evaluator(object):
     def _evaluate_event(self, reputation_collector, event_id):
         attendances = self._fetch.attendance_list(event_id)
         for attendance in attendances:
+            member = attendance.get("member")
+            if member is None:
+                continue  # future meetup, no attendance list?
             if attendance["member"]["id"] == 0:
                 continue  # case when member is a former member
             reputation_affect = self._config.evaluate(attendance)
