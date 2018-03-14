@@ -6,21 +6,21 @@ class MeetupFetcher(object):
     MEMBERS_URL_FORMAT = "https://api.meetup.com/{0}/members"
     ATTENDANCES_URL_FORMAT = "https://api.meetup.com/{0}/events/{1}/attendance"
 
-    def __init__(self, meetup_name, token_file=".token"):
+    def __init__(self, meetup_name, token):
         self._headers = {}
         self._meetup_name = meetup_name
 
         self._session = Session()
         self._session.headers.update(self._headers)
-        self.token_file = token_file
+        self.token = token
 
     def last_events_ids(self, number_of_events=1):
-        params = {"status": "past", 'key': self._get_token()}
+        params = {"status": "past", 'key': self._token}
         events = self._events_according_to_params(params)
         return [event["id"] for event in sorted(events, key=lambda e: int(e["created"]))[-number_of_events:]]
 
     def members(self):
-        params = {'key': self._get_token()}
+        params = {'key': self._token}
         members = [
             (member["id"], member["name"])
             for response in self._all_responses(self.MEMBERS_URL_FORMAT.format(self._meetup_name), params=params)
@@ -29,7 +29,7 @@ class MeetupFetcher(object):
         return members
 
     def attendance_list(self, event_id):
-        params = {'filter': 'all', 'key': self._get_token()}
+        params = {'filter': 'all', 'key': self._token}
         return self._attendances_list_according_to_params(event_id, params)
 
     def _events_according_to_params(self, params):

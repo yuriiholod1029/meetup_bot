@@ -18,7 +18,7 @@ def read_args():
 
 if __name__ == "__main__":
     args = read_args()
-    fetch = MeetupFetcher(args.meetup)
+    fetch = MeetupFetcher(args.meetup, token=open('.token').read().strip())
     configuration = JsonFileConfig(args.config)
     configuration.load()
 
