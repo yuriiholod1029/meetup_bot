@@ -1,3 +1,4 @@
+import csv
 import logging
 
 
@@ -11,9 +12,11 @@ class Reputation(object):
         except KeyError:
             logging.warning('missing member: %s', member_id)
 
-    def dump_to_csv(self, sort=True):
+    def dump_to_csv(self, stream, sort=True):
+        results = csv.writer(stream)
         reputations_items = sorted(
             [item for item in self._reputations.items()],
             key=lambda x: x[1]["points"],
             reverse=True) if sort else self._reputations.items()
-        return "\n".join("{0},{1}".format(item["name"], item["points"]) for _, item in reputations_items)
+        for _, item in reputations_items:
+            results.writerow((item['name'], item['points']))

@@ -5,6 +5,5 @@ class ReputationDumper(object):
         self._reputation_obj = reputation_object
 
     def dump_to_csv(self):
-        with open(self._result_file_path, "w") as f:
-            content = self._reputation_obj.dump_to_csv()
-            f.write(content)
+        with open(self._result_file_path, 'w', encoding='utf-8') as f:  # TypeError -> you are using python2.x
+            self._reputation_obj.dump_to_csv(f)
