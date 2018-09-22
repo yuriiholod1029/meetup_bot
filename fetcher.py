@@ -19,12 +19,20 @@ class MeetupFetcher(object):
         events = self._events_according_to_params(params)
         return [event["id"] for event in sorted(events, key=lambda e: int(e["created"]))[-number_of_events:]]
 
+    def raw_members(self):
+        params = {'key': self._token}
+        members = [
+            member
+            for response in self._all_responses(self.MEMBERS_URL_FORMAT.format(self._meetup_name), params=params)
+            for member in response.json()
+        ]
+        return members
+
     def members(self):
         params = {'key': self._token}
         members = [
             (member["id"], member["name"])
-            for response in self._all_responses(self.MEMBERS_URL_FORMAT.format(self._meetup_name), params=params)
-            for member in response.json()
+            for member in self.raw_members()
         ]
         return members
 
