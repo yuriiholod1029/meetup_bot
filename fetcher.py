@@ -1,4 +1,9 @@
+import logging
+
 from requests import Session
+
+
+logger = logging.getLogger(__name__)
 
 
 class MeetupFetcher(object):
@@ -26,6 +31,7 @@ class MeetupFetcher(object):
             for response in self._all_responses(self.MEMBERS_URL_FORMAT.format(self._meetup_name), params=params)
             for member in response.json()
         ]
+        logger.info('member count: %i', len(members))
         return members
 
     def members(self):
@@ -62,6 +68,7 @@ class MeetupFetcher(object):
         while 1:
             response = self._session.get(request, **kwargs)
             if response.status_code == 429:
+                logger.info('need to sleep %s', response.headers.get('X-RateLimit-Reset'))
                 time.sleep(
                     max(  # to prevent accidental excessive CPU consumption if meetup rate limiter fails
                         float(

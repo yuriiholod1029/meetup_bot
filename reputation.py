@@ -1,3 +1,4 @@
+from collections import Counter
 import csv
 import logging
 
@@ -14,9 +15,12 @@ class Reputation(object):
 
     def dump_to_csv(self, stream, sort=True):
         results = csv.writer(stream)
+        points = Counter()
         reputations_items = sorted(
             [item for item in self._reputations.items()],
             key=lambda x: x[1]["points"],
             reverse=True) if sort else self._reputations.items()
         for _, item in reputations_items:
+            points[item['points']] += 1
             results.writerow((item['name'], item['points']))
+        logging.info('dumping points %s', points)

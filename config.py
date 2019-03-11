@@ -1,8 +1,9 @@
 import json
 import logging
+import yaml
 
 
-class JsonFileConfig(object):
+class YamlFileConfig(object):
     def __init__(self, file_path):
         self._file_path = file_path
         self._config = {}
@@ -29,4 +30,4 @@ class JsonFileConfig(object):
 
     def load(self):
         with open(self._file_path, "r") as f:
-            self._config = json.loads(f.read())
+            self._config = yaml.safe_load(f.read())
