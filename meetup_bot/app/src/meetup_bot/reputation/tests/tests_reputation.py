@@ -1,6 +1,6 @@
 import unittest
 
-from reputation import Reputation
+from meetup_bot.app.src.meetup_bot.reputation.reputation import Reputation
 
 
 class ReputationTests(unittest.TestCase):
