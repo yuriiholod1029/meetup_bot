@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Dict, Generator
 
 from requests import Session
 
@@ -11,6 +12,7 @@ class MeetupFetcher(object):
     EVENTS_URL_FORMAT = "https://api.meetup.com/{0}/events"
     MEMBERS_URL_FORMAT = "https://api.meetup.com/{0}/members"
     ATTENDANCES_URL_FORMAT = "https://api.meetup.com/{0}/events/{1}/attendance"
+    RSVP_URL_FORMAT = "https://api.meetup.com/{0}/events/{1}/rsvps"
 
     def __init__(self, meetup_name, token):
         self._headers = {}
@@ -64,6 +66,18 @@ class MeetupFetcher(object):
                 self.ATTENDANCES_URL_FORMAT.format(self._meetup_name, event_id), params=params)
             for attendance in response.json()
         ]
+
+    def get_rsvp_list(self, event_id: int, params=None) -> Generator[Dict, None, None]:
+        params.update({
+            'key': self._token
+        })
+        return (
+            rsvp
+            for response in self._all_responses(
+                self.RSVP_URL_FORMAT.format(self._meetup_name, event_id), params=params
+            )
+            for rsvp in response.json()
+        )
 
     def _get(self, request, **kwargs):
         while 1:
