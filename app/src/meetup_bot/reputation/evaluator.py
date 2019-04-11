@@ -1,5 +1,5 @@
-
 class Evaluator(object):
+
     def __init__(self, config, fetch, num_of_events=1):
         self._config = config
         self._fetch = fetch

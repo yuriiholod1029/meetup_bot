@@ -1,6 +1,7 @@
+from copy import deepcopy
 import json
 import logging
-import yaml
+from typing import Dict
 
 
 class YamlFileConfig(object):
@@ -28,6 +29,5 @@ class YamlFileConfig(object):
 
         return grade
 
-    def load(self):
-        with open(self._file_path, "r") as f:
-            self._config = yaml.safe_load(f.read())
+    def load(self, data: Dict):
+        self._config = deepcopy(data)
