@@ -124,3 +124,17 @@ Restoring system from backup after a catastrophical failure
 3. See if everything works
 4. Set up backups on the new machine
 5. Make sure everything is filled up in .env, error reporting integration, email accounts etc
+
+TODO
+----
+
+1. Reputation: move config storage from yaml file to django settings
+2. Reputation: move attendance evaluation logic from config class to Evaluator class
+3. Reputation: remove redundant YamlFileConfig class (whole `config.py`)
+4. Celery: move reputation fetcher from main.py (in `reputation` package) to celery task (`fetch_reputation`)
+5. Reputation: remove `main.py`
+5. Django ORM: create models to store reputation
+6. Celery: store results of `fetch_reputation` in DB
+7. ...
+... Django admin actions
+...
