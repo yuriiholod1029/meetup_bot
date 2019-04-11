@@ -37,7 +37,7 @@ class Evaluator(object):
             return 0  # case when user did not declared any attendance before event
 
         attendance_response = rsvp['response']
-        attendance_status = attendance_response.get('status')
+        attendance_status = attendance.get('status')
 
         attendance_code = f'{attendance_response}, {attendance_status}'
         score = self.REPUTATION_SCORE.get(attendance_code)
