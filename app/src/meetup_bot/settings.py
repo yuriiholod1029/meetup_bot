@@ -153,7 +153,7 @@ if env('SENTRY_DSN', default=''):
 
 MEETUP_COM_API_TOKEN = env('MEETUP_COM_API_TOKEN', default='')
 
-REPUTATION_CONFIG = {
+REPUTATION_SCORE = {
     'yes, attended': 0,  # confirmed went (2019-03-13: doesn't work anymore, now it is 'yes, None'
     'yes, noshow': 1,  # said he will be here, but did not come
     'yes, absent': 0,    # said he will be there, but then the organizer selected 'didn't go' instead of 'noshow' (we have forgiven)
