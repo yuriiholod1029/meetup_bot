@@ -1,9 +1,20 @@
-meetup_bot
+Meetup Bot
 ===============================
 
 Meetup Bot
 
 Skeleton of this project was generated with `cookiecutter-rt-django`, which sometimes gets upgrades that are easy to retrofit into already older projects.
+
+Purpose
+--------
+
+This project is aimed on simplifying the work with communities, organized to meet thru Meetup.com site. Sometimes you
+have only 50% of planned attendance and you want to prevent such failure in future. To resolve that problem we should be
+able to score each individual participant - how reliable (s)he is in visiting meetups.
+
+Technically, it talks with [Meetup.com API](https://www.meetup.com/en-US/meetup_api/) to retrieve information about
+participants to score them. Results of reputation calculation will be stored in project database. You could initiate
+some actions on that data thru web UI (which is Django Admin for now).
 
 Base requirements
 ------------

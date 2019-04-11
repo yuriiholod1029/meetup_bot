@@ -150,3 +150,5 @@ if env('SENTRY_DSN', default=''):
         dsn=env('SENTRY_DSN', default=''),
         integrations=[DjangoIntegration(), sentry_logging]
     )
+
+MEETUP_COM_API_TOKEN = env('MEETUP_COM_API_TOKEN', default='')
