@@ -1,4 +1,5 @@
 import logging
+import time
 
 from requests import Session
 
@@ -71,12 +72,7 @@ class MeetupFetcher(object):
                 logger.info('need to sleep %s', response.headers.get('X-RateLimit-Reset'))
                 time.sleep(
                     max(  # to prevent accidental excessive CPU consumption if meetup rate limiter fails
-                        float(
-                            response.headers.get(
-                                'X-RateLimit-Reset',
-                                'missing header!'
-                            )
-                        ),
+                        float(response.headers.get('X-RateLimit-Reset', 10)),
                         1
                     )
                 )
