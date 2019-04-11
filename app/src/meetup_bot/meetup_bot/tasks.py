@@ -4,7 +4,6 @@ from celery import shared_task
 
 from django.conf import settings
 
-from meetup_bot.reputation.config import YamlFileConfig
 from meetup_bot.reputation.evaluator import Evaluator
 from meetup_bot.reputation.fetcher import MeetupFetcher
 from meetup_bot.reputation.reputation import Reputation
