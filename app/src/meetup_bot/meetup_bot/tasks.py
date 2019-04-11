@@ -21,8 +21,7 @@ def fetch_reputation(meetup_title: str, number_of_events: int = 10):
     :param number_of_events: Number of last events to check, e.g. 10
     """
     fetcher = MeetupFetcher(meetup_title, token=settings.MEETUP_COM_API_TOKEN)
-    configuration = YamlFileConfig()
-    configuration.load(settings.REPUTATION_CONFIG)
+    configuration = YamlFileConfig(settings.REPUTATION_CONFIG)
     reputation = Evaluator(configuration, fetcher, number_of_events).evaluate_by_events(Reputation)
 
     with open('result.csv', 'w', encoding='utf-8') as output_stream:  # TypeError -> you are using python2.x

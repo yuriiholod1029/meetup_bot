@@ -5,9 +5,8 @@ from typing import Dict
 
 
 class YamlFileConfig(object):
-    def __init__(self, file_path):
-        self._file_path = file_path
-        self._config = {}
+    def __init__(self, config: Dict):
+        self._config = deepcopy(config)
 
     def evaluate(self, attendance_response):
         rsvp = attendance_response.get("rsvp")
@@ -28,6 +27,3 @@ class YamlFileConfig(object):
             return 0
 
         return grade
-
-    def load(self, data: Dict):
-        self._config = deepcopy(data)
