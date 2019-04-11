@@ -1,10 +1,10 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from meetup_bot.app.src.meetup_bot.reputation.config import JsonFileConfig
-from meetup_bot.app.src.meetup_bot.reputation.evaluator import Evaluator
-from meetup_bot.app.src.meetup_bot.reputation.fetcher import MeetupFetcher
-from meetup_bot.app.src.meetup_bot.reputation.reputation import Reputation
+from app.src.meetup_bot.reputation import JsonFileConfig
+from app.src.meetup_bot.reputation import Evaluator
+from app.src.meetup_bot.reputation import MeetupFetcher
+from app.src.meetup_bot.reputation import Reputation
 
 
 ATTENDED = "attended"

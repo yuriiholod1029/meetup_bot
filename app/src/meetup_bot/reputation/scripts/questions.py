@@ -1,8 +1,8 @@
 from collections import defaultdict, Counter
 import csv
 
-from meetup_bot.app.src.meetup_bot.reputation.fetcher import MeetupFetcher
-from meetup_bot.app.src.meetup_bot.reputation.main import read_args
+from app.src.meetup_bot.reputation import MeetupFetcher
+from app.src.meetup_bot.reputation import read_args
 
 
 if __name__ == "__main__":

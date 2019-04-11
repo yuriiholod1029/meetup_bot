@@ -18,7 +18,7 @@ services:
 
   app:
     build:
-      context: ./app
+      context: app
       dockerfile: Dockerfile
     image: meetup_bot/app
     restart: always

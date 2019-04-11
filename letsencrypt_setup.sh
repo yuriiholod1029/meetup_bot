@@ -16,7 +16,7 @@ docker run -it --rm \
       --standalone --preferred-challenges http\
       -d "$NGINX_HOST"
 
-./letsencrypt_setup_crontab.sh
+letsencrypt_setup_crontab.sh
 
 crontab -l
 
