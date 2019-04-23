@@ -1,0 +1,18 @@
+export POSTGRES_DB=meetup_bot
+export POSTGRES_PASSWORD=A5GLJYYjZgOlMfy8
+export SECRET_KEY='S87IMyNpVv1xZuBh5YfYmvC0kedSSpSGiv0Mfe3nwUJEAU4svn'
+export DATABASE_URL=postgres://postgres:A5GLJYYjZgOlMfy8@localhost:8432/meetup_bot
+
+export CELERY_BROKER_URL=redis://localhost:8379/0
+
+# Flower
+export CELERY_FLOWER_USER=sxL9mSKuJMVf1nPZ
+export CELERY_FLOWER_PASSWORD=CwDSJVmyZpPSQVrM
+
+
+export DEBUG=on
+export EMAIL_HOST=
+export EMAIL_PORT=
+export EMAIL_HOST_USER=
+export EMAIL_HOST_PASSWORD=
+export SENTRY_DSN=https://<key>@sentry.io/<project>
