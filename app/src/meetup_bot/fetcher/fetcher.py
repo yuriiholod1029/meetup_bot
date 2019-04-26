@@ -33,11 +33,16 @@ class MeetupFetcher(object):
         self._meetup_token_obj.save(update_fields=['access_token', 'expires_at', 'expires_in'])
 
     def _get_client(self, client_id, client_secret):
-        token_dict = self._meetup_token_obj.token_dict(client_id, client_secret)
+        token_dict = self._meetup_token_obj.token_dict
+        extra = dict(
+            client_id=client_id,
+            client_secret=client_secret,
+        )
         client = OAuth2Session(
             client_id,
             token=token_dict,
             auto_refresh_url=self.REFRESH_URL,
+            auto_refresh_kwargs=extra,
             token_updater=self._save_meetup_token,
         )
         return client

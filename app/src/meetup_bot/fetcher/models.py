@@ -10,10 +10,9 @@ class MeetupToken(models.Model):
     expires_in = models.IntegerField()
     expires_at = models.DateTimeField()
 
-    def token_dict(self, client_id, client_secret):
+    @property
+    def token_dict(self):
         return dict(
             access_token=self.access_token,
             refresh_token=self.refresh_token,
-            client_id=client_id,
-            client_secret=client_secret,
         )
