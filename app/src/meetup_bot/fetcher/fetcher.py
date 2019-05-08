@@ -47,9 +47,12 @@ class MeetupFetcher(object):
         )
         return client
 
-    def last_events_ids(self, number_of_events=1):
+    def past_events(self):
         params = {"status": "past"}
-        events = self._events_according_to_params(params)
+        return self._events_according_to_params(params)
+
+    def last_events_ids(self, number_of_events=1):
+        events = self.past_events()
         return [event["id"] for event in sorted(events, key=lambda e: int(e["created"]))[-number_of_events:]]
 
     def raw_members(self):

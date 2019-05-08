@@ -6,6 +6,7 @@ import datetime as dt
 import environ
 import sentry_sdk
 import logging
+from celery.schedules import crontab
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
@@ -133,7 +134,12 @@ CELERY_RESULT_EXPIRES = int(dt.timedelta(days=1).total_seconds())
 # Needed for worker monitoring
 CELERY_SEND_EVENTS = True
 
-CELERY_BEAT_SCHEDULE = {}
+CELERY_BEAT_SCHEDULE = {
+    'fetch-events': {
+        'task': 'meetup_bot.core.tasks.fetch_events',
+        'schedule': crontab(hour='*/2', minute=0),
+    },
+}
 
 # default to json serialization only
 CELERY_ACCEPT_CONTENT = ['json']
@@ -143,6 +149,8 @@ CELERY_RESULT_SERIALIZER = 'json'
 # Meetup settings
 MEETUP_CLIENT_ID = env('MEETUP_CLIENT_ID', default='')
 MEETUP_CLIENT_SECRET = env('MEETUP_CLIENT_SECRET', default='')
+MEETUP_DEFAULT_USER = env('MEETUP_DEFAULT_USER', default='')
+MEETUP_NAME = 'AgileWarsaw'
 
 if env('SENTRY_DSN', default=''):
     sentry_logging = LoggingIntegration(
