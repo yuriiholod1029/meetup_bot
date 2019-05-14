@@ -12,6 +12,7 @@ class MeetupFetcher(object):
     EVENTS_URL_FORMAT = "https://api.meetup.com/{0}/events"
     MEMBERS_URL_FORMAT = "https://api.meetup.com/{0}/members"
     ATTENDANCES_URL_FORMAT = "https://api.meetup.com/{0}/events/{1}/attendance"
+    RSVPS_URL = "https://api.meetup.com/2/rsvps"
     REFRESH_URL = 'https://secure.meetup.com/oauth2/access'
 
     def __init__(self, username, client_id, client_secret, meetup_name):
@@ -47,12 +48,13 @@ class MeetupFetcher(object):
         )
         return client
 
-    def past_events(self):
-        params = {"status": "past"}
-        return self._events_according_to_params(params)
+    def events(self, **extra_params):
+        # Default it will show only upcoming meetups
+        return self._events_according_to_params(extra_params)
 
     def last_events_ids(self, number_of_events=1):
-        events = self.past_events()
+        extra_params = {"status": "past"}
+        events = self.events(**extra_params)
         return [event["id"] for event in sorted(events, key=lambda e: int(e["created"]))[-number_of_events:]]
 
     def raw_members(self):
@@ -76,12 +78,26 @@ class MeetupFetcher(object):
         params = {'filter': 'all'}
         return self._attendances_list_according_to_params(event_id, params)
 
+    def waitlist_rsvps(self, event_id):
+        rsvps_list = self.rsvps(event_id)
+        return [rsvp_dict['member']['member_id'] for rsvp_dict in rsvps_list if rsvp_dict['response'] == 'waitlist']
+
+    def rsvps(self, event_id, **extra_params):
+        params = {
+            'event_id': event_id,
+            **extra_params,
+        }
+        return self._rsvps_according_to_params(params)
+
+    def _rsvps_according_to_params(self, params):
+        return (result for results in self._all_responses_v2(self.RSVPS_URL, params=params) for result in results)
+
     def _events_according_to_params(self, params):
         return (
             event
             for response in self._all_responses(
                 self.EVENTS_URL_FORMAT.format(self._meetup_name),
-                params=params
+                params=params,
             )
             for event in response.json()
         )
@@ -120,3 +136,10 @@ class MeetupFetcher(object):
         while response.links.get('next'):
             response = self._get(response.links['next']['url'], **kwargs)
             yield response
+
+    def _all_responses_v2(self, initial_request, **kwargs):
+        response = self._get(initial_request, **kwargs)
+        yield response.json()['results']
+        while response.json()['meta']['next']:
+            response = self._get(response.json()['meta']['next'], **kwargs)
+            yield response.json()['results']

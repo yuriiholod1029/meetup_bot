@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.messages import SUCCESS, ERROR
 from django.conf import settings
 
 from meetup_bot.fetcher.fetcher import MeetupFetcher
