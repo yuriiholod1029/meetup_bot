@@ -16,18 +16,47 @@ class CustomModelAdmin(admin.ModelAdmin):
         super(CustomModelAdmin, self).__init__(model, admin_site)
 
 
+def get_waitlist_members_for_event(fetcher, event_id):
+    waitlist_members = fetcher.waitlist_rsvps(event_id)
+    return waitlist_members
+
+
+def get_points_for_waitlist_members(waitlist_members):
+    waitlist_members_str = ','.join([str(m['id']) for m in waitlist_members])
+    members = Member.objects.raw(f'''SELECT m.id, sum(
+                                        CASE
+                                        WHEN ea.override_points is not null
+                                        THEN ea.override_points
+                                        WHEN ap.points is not null
+                                        THEN ap.points
+                                        ELSE 0
+                                        END) as total_points
+                                     FROM core_member m
+                                     LEFT JOIN core_eventattendance ea
+                                     ON m.id = ea.member_id
+                                     LEFT JOIN core_attendancepoint ap
+                                     ON ea.rsvp = ap.rsvp
+                                     AND (ea.status = ap.status or (ea.status is null and ap.status is null))
+                                     WHERE m.meetup_id in ({waitlist_members_str})
+                                     GROUP BY m.id ORDER BY total_points DESC''')
+    return members
+
+
+def get_fetcher():
+    return MeetupFetcher(
+        settings.MEETUP_DEFAULT_USER,  # Later on we can change it to logged-in user
+        settings.MEETUP_CLIENT_ID,
+        settings.MEETUP_CLIENT_SECRET,
+        settings.MEETUP_NAME,
+    )
+
+
 class EventAdmin(CustomModelAdmin):
-    actions = ['update_attendance', 'preview_waitlist']
+    actions = ['update_attendance', 'preview_waitlist', 'waitlist_to_yes']
 
     def update_attendance(self, request, queryset):
-        fetcher = MeetupFetcher(
-            settings.MEETUP_DEFAULT_USER,  # Later on we can change it to logged-in user
-            settings.MEETUP_CLIENT_ID,
-            settings.MEETUP_CLIENT_SECRET,
-            settings.MEETUP_NAME,
-        )
+        fetcher = get_fetcher()
         for event in queryset.all():
-            # TODO: Move this function to a separate module
             try:
                 attendance_list = fetcher.attendance_list(event.meetup_id)
             except HTTPError:
@@ -53,29 +82,13 @@ class EventAdmin(CustomModelAdmin):
     update_attendance.short_description = 'Update attendance for events'
 
     def preview_waitlist(self, request, queryset):
-        fetcher = MeetupFetcher(
-            settings.MEETUP_DEFAULT_USER,  # Later on we can change it to logged-in user
-            settings.MEETUP_CLIENT_ID,
-            settings.MEETUP_CLIENT_SECRET,
-            settings.MEETUP_NAME,
-        )
+        fetcher = get_fetcher()
         for event in queryset.all():
-            waitlist_members = fetcher.waitlist_rsvps(event.meetup_id)
-            waitlist_members_str = ','.join([str(m) for m in waitlist_members])
-            members = Member.objects.raw(f'''SELECT m.id, sum(
-                                                CASE
-                                                WHEN ea.override_points is not null
-                                                THEN ea.override_points
-                                                ELSE ap.points
-                                                END) as total_points
-                                             FROM core_eventattendance ea
-                                             INNER JOIN core_member m
-                                             ON m.id = ea.member_id
-                                             LEFT JOIN core_attendancepoint ap
-                                             ON ea.rsvp = ap.rsvp
-                                             WHERE (ea.status = ap.status or (ea.status is null and ap.status is null))
-                                             AND m.meetup_id in ({waitlist_members_str})
-                                             GROUP BY m.id ORDER BY total_points DESC''')
+            waitlist_members = get_waitlist_members_for_event(fetcher, event.meetup_id)
+            if not waitlist_members:
+                self.message_user(request, f'No waitlist members for meetup: {event.meetup_id}', SUCCESS)
+                continue
+            members = get_points_for_waitlist_members(waitlist_members)
             self.message_user(
                 request,
                 [(m.name, m.total_points) for m in members],
@@ -84,8 +97,53 @@ class EventAdmin(CustomModelAdmin):
 
     preview_waitlist.short_description = 'Preview Waitlist for event'
 
+    def waitlist_to_yes(self, request, queryset):
+        fetcher = get_fetcher()
+        for event in queryset.all():
+            if event.max_allowed is None:
+                self.message_user(request, f'Please set Max allowed for meetup: {event.meetup_id}', ERROR)
+                continue
+            rsvps_list = fetcher.rsvps(event.meetup_id)
+            rsvps_list = [r for r in rsvps_list]
+            # get total members with yes.
+            yes_members = [
+                rsvp_dict['member']
+                for rsvp_dict in rsvps_list
+                if rsvp_dict['response'] == 'yes' and 'id' in rsvp_dict['member']
+            ]
+            if len(yes_members) >= event.max_allowed:
+                self.message_user(request, f'Yes members already full for meetup: {event.meetup_id}', SUCCESS)
+                continue
 
-admin.site.register(Member, CustomModelAdmin)
+            waitlist_members = [
+                rsvp_dict['member']
+                for rsvp_dict in rsvps_list
+                if rsvp_dict['response'] == 'waitlist' and 'id' in rsvp_dict['member']
+            ]
+            if not waitlist_members:
+                self.message_user(request, f'No waitlist members for meetup: {event.meetup_id}', SUCCESS)
+                continue
+            members = get_points_for_waitlist_members(waitlist_members)
+
+            num_members_allow = event.max_allowed - len(yes_members)
+            members_updated = []
+            for i in range(num_members_allow):
+                fetcher.update_rsvp(event.meetup_id, members[i].meetup_id)
+                members_updated.append(members[i].name)
+            self.message_user(
+                request,
+                f'waitlist members: {members_updated} updated to yes for meetup: {event.meetup_id}\n',
+                SUCCESS
+            )
+
+    waitlist_to_yes.short_description = 'Mark waitlist members to yes'
+
+
+class MemberAdmin(CustomModelAdmin):
+    search_fields = ['name']
+
+
+admin.site.register(Member, MemberAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(AttendancePoint, CustomModelAdmin)
 admin.site.register(EventAttendance, CustomModelAdmin)

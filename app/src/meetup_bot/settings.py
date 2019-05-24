@@ -137,6 +137,11 @@ CELERY_SEND_EVENTS = True
 CELERY_BEAT_SCHEDULE = {
     'fetch-events': {
         'task': 'meetup_bot.core.tasks.fetch_events',
+        # 'schedule': crontab(hour='*/2', minute=0),
+        'schedule': crontab(minute='*'),
+    },
+    'fetch-members': {
+        'task': 'meetup_bot.core.tasks.fetch_members',
         'schedule': crontab(hour='*/2', minute=0),
     },
 }

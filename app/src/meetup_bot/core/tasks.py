@@ -7,7 +7,7 @@ from django.utils import timezone
 from meetup_bot.celery import app
 from meetup_bot.fetcher.fetcher import MeetupFetcher
 
-from meetup_bot.core.models import Event
+from meetup_bot.core.models import Event, Member
 
 logger = get_task_logger(__name__)
 
@@ -28,7 +28,31 @@ def fetch_events():
     extra_params = {'status': 'past,upcoming'}
     # TODO: Get only events which are not yet created
 
-    for event in fetcher.events(**extra_params):
-        # Needs to be tested
-        created = get_timezone_aware_datetime_from_timestamp(int(event['created']))
-        Event.objects.update_or_create(meetup_id=event['id'], defaults=dict(created=created))
+    for event_dict in fetcher.events(**extra_params):
+        created = get_timezone_aware_datetime_from_timestamp(int(event_dict['created']))
+        Event.objects.update_or_create(
+            meetup_id=event_dict['id'],
+            defaults=dict(
+                created=created,
+                name=event_dict['name'],
+            ),
+        )
+
+
+@app.task
+def fetch_members():
+    fetcher = MeetupFetcher(
+        settings.MEETUP_DEFAULT_USER,
+        settings.MEETUP_CLIENT_ID,
+        settings.MEETUP_CLIENT_SECRET,
+        settings.MEETUP_NAME,
+    )
+
+    for member_dict in fetcher.raw_members():
+        Member.objects.update_or_create(
+            meetup_id=member_dict['id'],
+            defaults=dict(
+                name=member_dict['name'],
+
+            ),
+        )
