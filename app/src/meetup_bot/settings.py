@@ -7,6 +7,7 @@ import environ
 import sentry_sdk
 import logging
 from celery.schedules import crontab
+from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
@@ -137,8 +138,7 @@ CELERY_SEND_EVENTS = True
 CELERY_BEAT_SCHEDULE = {
     'fetch-events': {
         'task': 'meetup_bot.core.tasks.fetch_events',
-        # 'schedule': crontab(hour='*/2', minute=0),
-        'schedule': crontab(minute='*'),
+        'schedule': crontab(hour='*/2', minute=0),
     },
     'fetch-members': {
         'task': 'meetup_bot.core.tasks.fetch_members',
@@ -150,6 +150,9 @@ CELERY_BEAT_SCHEDULE = {
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+# To make request.scheme as https when request comes through nginx
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_SCHEME', 'https')
 
 # Meetup settings
 MEETUP_CLIENT_ID = env('MEETUP_CLIENT_ID', default='')
@@ -165,5 +168,24 @@ if env('SENTRY_DSN', default=''):
 
     sentry_sdk.init(
         dsn=env('SENTRY_DSN', default=''),
-        integrations=[DjangoIntegration(), sentry_logging]
+        integrations=[DjangoIntegration(), CeleryIntegration(), sentry_logging]
     )
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG',
+        },
+    },
+    'loggers': {
+        '': {  # 'catch all' loggers by referencing it with the empty string
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+    },
+}

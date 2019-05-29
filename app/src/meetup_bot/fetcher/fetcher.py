@@ -8,47 +8,50 @@ from .models import MeetupToken
 logger = logging.getLogger(__name__)
 
 
+class MeetupClient:
+    REFRESH_URL = 'https://secure.meetup.com/oauth2/access'
+
+    def __init__(self, client_id, client_secret, token_dict, save_token):
+        extra = dict(
+            client_id=client_id,
+            client_secret=client_secret,
+        )
+        self.client = OAuth2Session(
+            client_id,
+            token=token_dict,
+            auto_refresh_url=self.REFRESH_URL,
+            auto_refresh_kwargs=extra,
+            token_updater=save_token,
+        )
+
+    @classmethod
+    def from_username(cls, username, client_id, client_secret):
+        meetup_token_obj = MeetupToken.objects.filter(username=username).first()
+        if not meetup_token_obj:
+            raise Exception('Please authorize first to use')
+
+        def save_meetup_token(token_dict):
+            meetup_token_obj.access_token = token_dict['access_token']
+            meetup_token_obj.expires_at = token_dict['expires_at']
+            meetup_token_obj.expires_in = token_dict['expires_in']
+            meetup_token_obj.save(update_fields=['access_token', 'expires_at', 'expires_in'])
+
+        token_dict = meetup_token_obj.token_dict
+        return cls(client_id, client_secret, token_dict, save_meetup_token)
+
+
 class MeetupFetcher(object):
     EVENTS_URL_FORMAT = "https://api.meetup.com/{0}/events"
     MEMBERS_URL_FORMAT = "https://api.meetup.com/{0}/members"
     ATTENDANCES_URL_FORMAT = "https://api.meetup.com/{0}/events/{1}/attendance"
     RSVPS_URL_FORMAT = "https://api.meetup.com/{0}/events/{1}/rsvps"
     RSVP_UPDATE_URL = 'https://api.meetup.com/2/rsvp'
-    REFRESH_URL = 'https://secure.meetup.com/oauth2/access'
     SELF_GROUPS_URL = "https://api.meetup.com/self/groups"
 
-    def __init__(self, username, client_id, client_secret, meetup_name):
+    def __init__(self, client, meetup_name):
         self._headers = {}
         self._meetup_name = meetup_name
-        # Should we pass meetup token object instead of username
-        meetup_token_obj = MeetupToken.objects.filter(username=username).first()
-        if not meetup_token_obj:
-            raise Exception('Please authorize first to use')
-
-        self._meetup_token_obj = meetup_token_obj
-        self._client = self._get_client(client_id, client_secret)
-
-    def _save_meetup_token(self, token_dict):
-        # TODO: Move this to model
-        self._meetup_token_obj.access_token = token_dict['access_token']
-        self._meetup_token_obj.expires_at = token_dict['expires_at']
-        self._meetup_token_obj.expires_in = token_dict['expires_in']
-        self._meetup_token_obj.save(update_fields=['access_token', 'expires_at', 'expires_in'])
-
-    def _get_client(self, client_id, client_secret):
-        token_dict = self._meetup_token_obj.token_dict
-        extra = dict(
-            client_id=client_id,
-            client_secret=client_secret,
-        )
-        client = OAuth2Session(
-            client_id,
-            token=token_dict,
-            auto_refresh_url=self.REFRESH_URL,
-            auto_refresh_kwargs=extra,
-            token_updater=self._save_meetup_token,
-        )
-        return client
+        self._client = client.client
 
     def my_groups(self):
         return (

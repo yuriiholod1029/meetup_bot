@@ -6,5 +6,6 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', site.urls),
     path('', include('django.contrib.auth.urls')),
-    path('fetcher/', include('meetup_bot.fetcher.urls'))
+    path('fetcher/', include('meetup_bot.fetcher.urls')),
+    path('core/', include('meetup_bot.core.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

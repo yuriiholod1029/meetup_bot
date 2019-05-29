@@ -1,11 +1,9 @@
 from django.contrib import admin
 from django.contrib.messages import SUCCESS, ERROR
-from django.conf import settings
 
 from requests import HTTPError
 
-from meetup_bot.fetcher.fetcher import MeetupFetcher
-
+from meetup_bot.fetcher.utils import get_default_fetcher
 from .models import Member, Event, EventAttendance, AttendancePoint
 
 
@@ -42,20 +40,11 @@ def get_points_for_waitlist_members(waitlist_members):
     return members
 
 
-def get_fetcher():
-    return MeetupFetcher(
-        settings.MEETUP_DEFAULT_USER,  # Later on we can change it to logged-in user
-        settings.MEETUP_CLIENT_ID,
-        settings.MEETUP_CLIENT_SECRET,
-        settings.MEETUP_NAME,
-    )
-
-
 class EventAdmin(CustomModelAdmin):
     actions = ['update_attendance', 'preview_waitlist', 'waitlist_to_yes']
 
     def update_attendance(self, request, queryset):
-        fetcher = get_fetcher()
+        fetcher = get_default_fetcher()
         for event in queryset.all():
             try:
                 attendance_list = fetcher.attendance_list(event.meetup_id)
@@ -82,7 +71,7 @@ class EventAdmin(CustomModelAdmin):
     update_attendance.short_description = 'Update attendance for events'
 
     def preview_waitlist(self, request, queryset):
-        fetcher = get_fetcher()
+        fetcher = get_default_fetcher()
         for event in queryset.all():
             waitlist_members = get_waitlist_members_for_event(fetcher, event.meetup_id)
             if not waitlist_members:
@@ -98,7 +87,7 @@ class EventAdmin(CustomModelAdmin):
     preview_waitlist.short_description = 'Preview Waitlist for event'
 
     def waitlist_to_yes(self, request, queryset):
-        fetcher = get_fetcher()
+        fetcher = get_default_fetcher()
         for event in queryset.all():
             if event.max_allowed is None:
                 self.message_user(request, f'Please set Max allowed for meetup: {event.meetup_id}', ERROR)
