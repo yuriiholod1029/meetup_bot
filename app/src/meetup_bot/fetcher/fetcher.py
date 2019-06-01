@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class MeetupClient:
     REFRESH_URL = 'https://secure.meetup.com/oauth2/access'
 
-    def __init__(self, client_id, client_secret, token_dict, save_token):
+    def __init__(self, client_id, client_secret, token_dict, token_updater=None):
         extra = dict(
             client_id=client_id,
             client_secret=client_secret,
@@ -21,7 +21,7 @@ class MeetupClient:
             token=token_dict,
             auto_refresh_url=self.REFRESH_URL,
             auto_refresh_kwargs=extra,
-            token_updater=save_token,
+            token_updater=token_updater,
         )
 
     @classmethod
@@ -37,16 +37,19 @@ class MeetupClient:
             meetup_token_obj.save(update_fields=['access_token', 'expires_at', 'expires_in'])
 
         token_dict = meetup_token_obj.token_dict
-        return cls(client_id, client_secret, token_dict, save_meetup_token)
+        return cls(client_id, client_secret, token_dict, token_updater=save_meetup_token)
 
 
 class MeetupFetcher(object):
-    EVENTS_URL_FORMAT = "https://api.meetup.com/{0}/events"
-    MEMBERS_URL_FORMAT = "https://api.meetup.com/{0}/members"
-    ATTENDANCES_URL_FORMAT = "https://api.meetup.com/{0}/events/{1}/attendance"
-    RSVPS_URL_FORMAT = "https://api.meetup.com/{0}/events/{1}/rsvps"
-    RSVP_UPDATE_URL = 'https://api.meetup.com/2/rsvp'
-    SELF_GROUPS_URL = "https://api.meetup.com/self/groups"
+    BASE_URL = "https://api.meetup.com/"
+    EVENTS_URL_FORMAT = BASE_URL + "/{0}/events"
+    MEMBERS_URL_FORMAT = BASE_URL + "/{0}/members"
+    SELF_MEMBER_URL_FORMAT = BASE_URL + "/{0}/members/self"
+    ATTENDANCES_URL_FORMAT = BASE_URL + "/{0}/events/{1}/attendance"
+    RSVPS_URL_FORMAT = BASE_URL + "/{0}/events/{1}/rsvps"
+    RSVP_UPDATE_URL = BASE_URL + "/2/rsvp"
+    SELF_GROUPS_URL = BASE_URL + "/self/groups"
+    MARK_ATTENDANCE_URL_FORMAT = BASE_URL + "/{0}/events/{1}/attendance"
 
     def __init__(self, client, meetup_name):
         self._headers = {}
@@ -115,6 +118,23 @@ class MeetupFetcher(object):
             data=post_params,
         )
 
+    def mark_attendance(self, event_id, member_id, status):
+        post_params = {
+            'member': member_id,
+            'status': status,
+        }
+        return self._post(
+            self.MARK_ATTENDANCE_URL_FORMAT.format(self._meetup_name, event_id),
+            data=post_params,
+        )
+
+    def my_member_detail(self):
+        return [
+            response.json() for response in self._all_responses(
+                self.SELF_MEMBER_URL_FORMAT.format(self._meetup_name)
+            )
+        ][0]
+
     def _rsvps_according_to_params(self, event_id, params):
         return (
             rsvp
@@ -139,7 +159,9 @@ class MeetupFetcher(object):
         return [
             attendance
             for response in self._all_responses(
-                self.ATTENDANCES_URL_FORMAT.format(self._meetup_name, event_id), params=params)
+                self.ATTENDANCES_URL_FORMAT.format(self._meetup_name, event_id),
+                params=params,
+            )
             for attendance in response.json()
         ]
 

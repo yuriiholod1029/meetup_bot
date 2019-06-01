@@ -1,23 +1,11 @@
 from datetime import datetime
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.conf import settings
 from django.http.response import HttpResponse
 from django.utils.timezone import make_aware
-from requests_oauthlib import OAuth2Session
 
 from .models import MeetupToken
-
-
-def generate_token(code, redirect_uri):
-    session = OAuth2Session(settings.MEETUP_CLIENT_ID, redirect_uri=redirect_uri)
-    token_dict = session.fetch_token(
-        token_url='https://secure.meetup.com/oauth2/access',
-        include_client_id=True,
-        client_secret=settings.MEETUP_CLIENT_SECRET,
-        code=code,
-    )
-    return token_dict
+from .utils import generate_token
 
 
 @staff_member_required
