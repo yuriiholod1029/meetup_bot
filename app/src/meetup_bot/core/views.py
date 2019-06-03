@@ -3,6 +3,7 @@ import logging
 from requests.exceptions import HTTPError
 
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http.response import HttpResponse, HttpResponseServerError
 from django.shortcuts import redirect, reverse, get_object_or_404
 
@@ -59,6 +60,7 @@ def mark_attendance(request, event_id):
     return HttpResponse('Your attendance is marked successfully. Thanks for attending.')
 
 
+@staff_member_required
 def sync_events(request):
     fetch_events.delay()
     return HttpResponse('Events sync started')
