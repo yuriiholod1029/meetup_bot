@@ -10,6 +10,7 @@ from meetup_bot.fetcher.utils import generate_token, get_default_fetcher
 from meetup_bot.fetcher.fetcher import MeetupClient, MeetupFetcher
 
 from .models import Member, Event, RSVPStatus
+from .tasks import fetch_events
 
 logger = logging.getLogger(__name__)
 
@@ -56,3 +57,8 @@ def mark_attendance(request, event_id):
         logger.exception('Error from Meetup api when marking attendance for: %s', member_id)
         return HttpResponseServerError('There is some problem. Please contact organizers.')
     return HttpResponse('Your attendance is marked successfully. Thanks for attending.')
+
+
+def sync_events(request):
+    fetch_events.delay()
+    return HttpResponse('Events sync started')
