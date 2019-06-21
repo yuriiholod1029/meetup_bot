@@ -21,22 +21,24 @@ def get_waitlist_members_for_event(fetcher, event_id):
 
 def get_points_for_waitlist_members(waitlist_members):
     waitlist_members_str = ','.join([str(m['id']) for m in waitlist_members])
-    members = Member.objects.raw(f'''SELECT m.id, sum(
-                                        CASE
-                                        WHEN ea.override_points is not null
-                                        THEN ea.override_points
-                                        WHEN ap.points is not null
-                                        THEN ap.points
-                                        ELSE 0
-                                        END) as total_points
-                                     FROM core_member m
-                                     LEFT JOIN core_eventattendance ea
-                                     ON m.id = ea.member_id
-                                     LEFT JOIN core_attendancepoint ap
-                                     ON ea.rsvp = ap.rsvp
-                                     AND (ea.status = ap.status or (ea.status is null and ap.status is null))
-                                     WHERE m.meetup_id in ({waitlist_members_str})
-                                     GROUP BY m.id ORDER BY total_points DESC''')
+    members = Member.objects.raw(
+        f'''SELECT m.id, sum(
+            CASE
+            WHEN ea.override_points is not null
+            THEN ea.override_points
+            WHEN ap.points is not null
+            THEN ap.points
+            ELSE 0
+            END) as total_points
+         FROM core_member m
+         LEFT JOIN core_eventattendance ea
+         ON m.id = ea.member_id
+         LEFT JOIN core_attendancepoint ap
+         ON ea.rsvp = ap.rsvp
+         AND (ea.status = ap.status or (ea.status is null and ap.status is null))
+         WHERE m.meetup_id in ({waitlist_members_str})
+         GROUP BY m.id ORDER BY total_points DESC, random()'''
+    )
     return members
 
 
