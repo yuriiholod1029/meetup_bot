@@ -41,7 +41,7 @@ class MeetupClient:
 
 
 class MeetupFetcher(object):
-    BASE_URL = "https://api.meetup.com/"
+    BASE_URL = "https://api.meetup.com"
     EVENTS_URL_FORMAT = BASE_URL + "/{0}/events"
     MEMBERS_URL_FORMAT = BASE_URL + "/{0}/members"
     SELF_MEMBER_URL_FORMAT = BASE_URL + "/{0}/members/self"

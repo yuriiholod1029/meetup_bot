@@ -154,11 +154,13 @@ CELERY_RESULT_SERIALIZER = 'json'
 # To make request.scheme as https when request comes through nginx
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_SCHEME', 'https')
 
+BASE_URL = env('BASE_URL', default='https://agilewarsaw.reef.pl')
 # Meetup settings
 MEETUP_CLIENT_ID = env('MEETUP_CLIENT_ID', default='')
 MEETUP_CLIENT_SECRET = env('MEETUP_CLIENT_SECRET', default='')
 MEETUP_DEFAULT_USER = env('MEETUP_DEFAULT_USER', default='')
 MEETUP_NAME = 'AgileWarsaw'
+PENALTY_FOR_NEW_MEMBERS = env.int('PENALTY_FOR_NEW_MEMBERS', default=-1)
 
 if env('SENTRY_DSN', default=''):
     sentry_logging = LoggingIntegration(

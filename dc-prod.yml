@@ -3,12 +3,14 @@ version: '2'
 services:
   redis:
     image: redis:3-alpine
+    restart: always
     command: redis-server --appendonly yes
     volumes:
       - ./redis/data:/data
 
   db:
     image: postgres:9.6-alpine
+    restart: always
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -35,6 +37,7 @@ services:
   
   celery-worker:
     image: meetup_bot/app
+    restart: always
     env_file: ./.env
     environment:
       - DEBUG=off
