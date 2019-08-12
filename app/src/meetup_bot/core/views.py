@@ -5,7 +5,7 @@ from requests.exceptions import HTTPError
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http.response import HttpResponse, HttpResponseServerError
-from django.shortcuts import redirect, reverse, get_object_or_404
+from django.shortcuts import redirect, render, reverse, get_object_or_404
 
 from meetup_bot.fetcher.utils import generate_token, get_default_fetcher
 from meetup_bot.fetcher.fetcher import MeetupClient, MeetupFetcher
@@ -64,3 +64,13 @@ def mark_attendance(request, event_id):
 def sync_events(request):
     fetch_events.delay()
     return HttpResponse('Events sync started')
+
+
+@staff_member_required
+def paper_attendance(request, event_id):
+    fetcher = get_default_fetcher()
+    rsvps = fetcher.rsvps(event_id)
+    context = {
+        'rsvps': rsvps,
+    }
+    return render(request, 'core/rsvp.html', context)

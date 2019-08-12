@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.messages import SUCCESS, ERROR
+from django.shortcuts import reverse
+from django.utils.html import format_html
 
 from requests import HTTPError
 
@@ -42,7 +44,11 @@ def get_points_for_waitlist_members(waitlist_members):
     return members
 
 
-class EventAdmin(CustomModelAdmin):
+class EventAdmin(admin.ModelAdmin):
+    def __init__(self, model, admin_site):
+        self.list_display = [field.name for field in model._meta.fields] + ['paper_attendance_link']
+        super().__init__(model, admin_site)
+
     actions = ['update_attendance', 'preview_waitlist', 'waitlist_to_yes']
 
     def update_attendance(self, request, queryset):
@@ -128,6 +134,20 @@ class EventAdmin(CustomModelAdmin):
             )
 
     waitlist_to_yes.short_description = 'Mark waitlist members to yes'
+
+    def paper_attendance_link(self, event):
+        link = reverse(
+            'paper_attendance',
+            kwargs={
+                'event_id': event.id,
+            },
+        )
+        return format_html(
+            '<a href="{link}" title="{name}" target="_blank">Print RSVP list</a> ',
+            link=link,
+            name=event.name,
+        )
+    paper_attendance_link.short_description = 'Paper Attendance'
 
 
 class MemberAdmin(CustomModelAdmin):
