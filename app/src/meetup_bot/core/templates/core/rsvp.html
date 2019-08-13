@@ -19,12 +19,12 @@
         </style>
     </head>
     <body>
-        <p> Retrieved: {{ today_date }} | {{ total_guests }} guests.</p>
-        <h1> {{ event_title }} </h1>
+        <p> Retrieved: {% now "jS F Y H:i" %} | {{ rsvps|length }} guests.</p>
+        <h1> {{ event.name }} </h1>
 
         <ul>
           {% for rsvp in rsvps %}
-              <li> <span style="font-size: 1.6em;">&#9744;</span> {{ rsvp.name }} </li>
+              <li> <span style="font-size: 1.6em;">&#9744;</span> {{ rsvp.member.name }} </li>
           {% endfor %}
         </ul>
     </body>

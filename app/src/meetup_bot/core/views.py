@@ -68,9 +68,11 @@ def sync_events(request):
 
 @staff_member_required
 def paper_attendance(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
     fetcher = get_default_fetcher()
-    rsvps = fetcher.rsvps(event_id)
+    rsvps = fetcher.rsvps(event_id, response=RSVPStatus.RSVP_YES)
     context = {
         'rsvps': rsvps,
+        'event': event,
     }
     return render(request, 'core/rsvp.html', context)
