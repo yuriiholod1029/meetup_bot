@@ -97,11 +97,19 @@ class MeetupFetcher(object):
 
     def waitlist_rsvps(self, event_id):
         rsvps_list = self.rsvps(event_id)
-        rsvps_list = [r for r in rsvps_list]
+        # rsvps_list = [r for r in rsvps_list]
         return [
             rsvp_dict['member']
             for rsvp_dict in rsvps_list
             if rsvp_dict['response'] == 'waitlist' and 'id' in rsvp_dict['member']
+        ]
+
+    def non_waitlist_rsvps(self, event_id, **params):
+        rsvps_list = self.rsvps(event_id, **params)
+        return [
+            rsvp_dict['member']
+            for rsvp_dict in rsvps_list
+            if rsvp_dict['response'] != 'waitlist' and 'id' in rsvp_dict['member']
         ]
 
     def rsvps(self, event_id, **params):
