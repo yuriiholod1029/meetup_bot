@@ -57,7 +57,7 @@ def mark_attendance(request, event_id):
     except HTTPError:
         logger.exception('Error from Meetup api when marking attendance for: %s', member_id)
         return HttpResponseServerError('There is some problem. Please contact organizers.')
-    return HttpResponse('Your attendance is marked successfully. Thanks for attending.')
+    return HttpResponse('<h1>Your attendance is marked successfully. Thanks for attending.</h1>')
 
 
 @staff_member_required
