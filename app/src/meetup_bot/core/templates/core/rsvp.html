@@ -23,8 +23,8 @@
         <h1> {{ event.name }} </h1>
 
         <ul>
-          {% for rsvp in rsvps %}
-              <li> <span style="font-size: 1.6em;">&#9744;</span> {{ rsvp.member.name }} </li>
+          {% for member in rsvp_members %}
+              <li> <span style="font-size: 1.6em;">&#9744;</span> {{ member.name }} </li>
           {% endfor %}
         </ul>
     </body>

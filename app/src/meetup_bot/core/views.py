@@ -71,12 +71,12 @@ def sync_events(request):
 def paper_attendance(request, event_id):
     event = get_object_or_404(Event, meetup_id=event_id)
     fetcher = get_default_fetcher()
-    rsvps = fetcher.non_waitlist_rsvps(event.meetup_id, response=RSVPStatus.RSVP_YES)
+    rsvp_members = fetcher.non_waitlist_rsvps(event.meetup_id, response=RSVPStatus.RSVP_YES)
     # Sort by name because meetup is not sorting correctly
     locale.setlocale(locale.LC_COLLATE, "pl_PL.UTF-8")
-    rsvps.sort(key=lambda rsvp: locale.strxfrm(rsvp.member.name))
+    rsvp_members.sort(key=lambda member: locale.strxfrm(member['name']))
     context = {
-        'rsvps': rsvps,
+        'rsvp_members': rsvp_members,
         'event': event,
     }
     return render(request, 'core/rsvp.html', context)
