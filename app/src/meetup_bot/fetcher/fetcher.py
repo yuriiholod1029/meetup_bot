@@ -154,7 +154,7 @@ class MeetupFetcher(object):
         # )
         response = self._get(
             self.RSVPS_URL_FORMAT.format(self._meetup_name, event_id),
-            **params,
+            params=params,
         )
         return response.json()
 
