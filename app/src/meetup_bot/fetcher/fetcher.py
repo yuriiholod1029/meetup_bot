@@ -180,7 +180,9 @@ class MeetupFetcher(object):
 
     def _request(self, method, url, **kwargs):
         while 1:
+            logger.info('Calling meetup API: %s %s, kwargs: %s', method, url, kwargs)
             response = self._client.request(method, url, **kwargs)
+            logger.info('Received Response (%s) from API: %s %s, kwargs: %s', response.status_code, method, url, kwargs)
             if response.status_code == 429:
                 logger.info('need to sleep %s', response.headers.get('X-RateLimit-Reset'))
                 time.sleep(

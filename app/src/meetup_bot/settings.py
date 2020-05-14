@@ -142,7 +142,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'fetch-members': {
         'task': 'meetup_bot.core.tasks.fetch_members',
-        'schedule': crontab(hour='*/2', minute=0),
+        'schedule': crontab(hour='*/2', minute=30),
     },
 }
 
