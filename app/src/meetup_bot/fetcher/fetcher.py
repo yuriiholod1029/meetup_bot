@@ -144,14 +144,19 @@ class MeetupFetcher(object):
         ][0]
 
     def _rsvps_according_to_params(self, event_id, params):
-        return (
-            rsvp
-            for response in self._all_responses(
-                self.RSVPS_URL_FORMAT.format(self._meetup_name, event_id),
-                params=params,
-            )
-            for rsvp in response.json()
+        # return (
+        #     rsvp
+        #     for response in self._all_responses(
+        #         self.RSVPS_URL_FORMAT.format(self._meetup_name, event_id),
+        #         **params,
+        #     )
+        #     for rsvp in response.json()
+        # )
+        response = self._get(
+            self.RSVPS_URL_FORMAT.format(self._meetup_name, event_id),
+            **params,
         )
+        return response.json()
 
     def _events_according_to_params(self, params):
         return (
