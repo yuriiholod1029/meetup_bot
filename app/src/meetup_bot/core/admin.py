@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.messages import SUCCESS, ERROR
+from django.db.models.query import prefetch_related_objects
 from django.shortcuts import reverse
 from django.utils.html import format_html
 
@@ -24,6 +25,8 @@ def get_waitlist_members_for_event(fetcher, event_id):
 
 def get_points_for_waitlist_members(waitlist_members):
     waitlist_members_str = ','.join([str(m['id']) for m in waitlist_members])
+    penalty_for_new_members = settings.PENALTY_FOR_NEW_MEMBERS
+
     members = Member.objects.raw(
         f'''SELECT m.id, sum(
             CASE 
@@ -31,7 +34,7 @@ def get_points_for_waitlist_members(waitlist_members):
             THEN ea.override_points 
             WHEN ap.points is not null 
             THEN ap.points 
-            ELSE 0 
+            ELSE 0
             END) as total_points 
          FROM core_member m 
          LEFT JOIN core_eventattendance ea 
@@ -42,6 +45,11 @@ def get_points_for_waitlist_members(waitlist_members):
          WHERE m.meetup_id in ({waitlist_members_str}) 
          GROUP BY m.id ORDER BY total_points DESC, random()'''
     )
+    members = list(members)
+    prefetch_related_objects(members, 'eventattendance_set')
+    for m in members:
+        if not m.eventattendance_set.exists():
+            m.total_points = penalty_for_new_members
     return members
 
 
